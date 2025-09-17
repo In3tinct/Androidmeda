@@ -198,13 +198,13 @@ async def main(argv: Sequence[str]) -> None:
         genai.configure(api_key=api_key)
         llm_client = genai.GenerativeModel(_LLM_MODEL.value)
     elif "openai" in _LLM_PROVIDER.value:
-        llm_client = openai.OpenAI(api_key=api_key, timeout=20)
+        llm_client = openai.OpenAI(api_key=api_key, timeout=60)
     elif "anthropic" in _LLM_PROVIDER.value:
         llm_client = anthropic.Anthropic(api_key=api_key)
     elif "ollama" in _LLM_PROVIDER.value:
         llm_client = None #We don't need to do anything
     elif "vllm" in _LLM_PROVIDER.value:
-        llm_client = openai.OpenAI(api_key=api_key, base_url=api_base_url, timeout=20)
+        llm_client = openai.OpenAI(api_key=api_key, base_url=api_base_url, timeout=60)
     else:
         raise ValueError(f"Unsupported LLM provider: {_LLM_PROVIDER.value}")
 
