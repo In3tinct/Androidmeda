@@ -50,8 +50,14 @@ async def send_code_to_llm(system_instructions, files_data, llm_client=None):
                         {"role": "user", "content": files_data},
                     ],
                     model=_LLM_MODEL.value,
+                    stream=True,
                 )
-                return chat_completion.choices[0].message.content
+                # Handle streaming response
+                full_response = ""
+                for chunk in chat_completion:
+                    if chunk.choices[0].delta.content is not None:
+                        full_response += chunk.choices[0].delta.content
+                return full_response
             elif "anthropic" in _LLM_PROVIDER.value:
                 message = llm_client.messages.create(
                     model=_LLM_MODEL.value,
