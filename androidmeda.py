@@ -28,81 +28,74 @@ _THREAD_SIZE = flags.DEFINE_integer(
 
 async def send_code_to_llm(system_instructions, files_data, llm_client=None):
     complete_prompt = system_instructions + "\n\n" + files_data
-    retry_delay = 2  # Initial retry delay in seconds
-    max_retries = 5  # Maximum number of retries
-
-    for attempt in range(max_retries):
-        try:
-            if "google" in _LLM_PROVIDER.value:
-                response_template = await llm_client.generate_content_async([complete_prompt,],
-                    safety_settings={
-                        HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
-                    }
-                )
-                return response_template.text
-            elif "ollama" in _LLM_PROVIDER.value:
-                response = ollama.generate(model=_LLM_MODEL.value, format="json", prompt=complete_prompt)
-                return response.response
-            elif "openai" in _LLM_PROVIDER.value or "vllm" in _LLM_PROVIDER.value:
-                chat_completion = llm_client.chat.completions.create(
-                    messages=[
-                        {"role": "system", "content": system_instructions},
-                        {"role": "user", "content": files_data},
-                    ],
-                    model=_LLM_MODEL.value,
-                    stream=True,
-                )
-                # Handle streaming response
-                full_response = ""
-                for chunk in chat_completion:
-                    if chunk.choices[0].delta.content is not None:
-                        full_response += chunk.choices[0].delta.content
-                return full_response
-            elif "anthropic" in _LLM_PROVIDER.value:
-                message = llm_client.messages.create(
-                    model=_LLM_MODEL.value,
-                    max_tokens=4096,
-                    system=system_instructions,
-                    messages=[
-                        {"role": "user", "content": files_data}
-                    ]
-                )
-                return message.content[0].text
-        except ResourceExhausted as e:
-            print(f"Rate limit error: {e}")
-            print(f"Retrying in {retry_delay} seconds (attempt {attempt + 1}/{max_retries})...")
-            await asyncio.sleep(retry_delay)
-            retry_delay *= 2  # Exponential backoff
-        except Exception as e:
-            print(f"LLM API Error: {e}")
-            traceback.print_exc()
-            sys.exit()
+    try:
+        if "google" in _LLM_PROVIDER.value:
+            response_template = await llm_client.generate_content_async([complete_prompt,],
+                safety_settings={
+                    HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
+                }
+            )
+            return response_template.text
+        elif "ollama" in _LLM_PROVIDER.value:
+            response = ollama.generate(model=_LLM_MODEL.value, format="json", prompt=complete_prompt)
+            return response.response
+        elif "openai" in _LLM_PROVIDER.value or "vllm" in _LLM_PROVIDER.value:
+            chat_completion = llm_client.chat.completions.create(
+                messages=[
+                    {"role": "system", "content": system_instructions},
+                    {"role": "user", "content": files_data},
+                ],
+                model=_LLM_MODEL.value,
+            )
+            return chat_completion.choices[0].message.content
+        elif "anthropic" in _LLM_PROVIDER.value:
+            message = llm_client.messages.create(
+                model=_LLM_MODEL.value,
+                max_tokens=4096,
+                system=system_instructions,
+                messages=[
+                    {"role": "user", "content": files_data}
+                ]
+            )
+            return message.content[0].text
+    except ResourceExhausted as e:
+        print(f"Rate limit error: {e}")
+    except Exception as e:
+        print(f"LLM API Error: {e}")
+        #traceback.print_exc()
+        return None
 
 output_data_lock = threading.Lock()
 output_data = defaultdict(list)
 
 def process_response_vuln(response_text,file_path):
     with output_data_lock:
-        #Removing JSON block from LLM response to process
-        response_text = response_text.replace("```json", "").replace("```", "").strip()
-        data = json.loads(response_text)
+        if response_text is not None:
+            #Removing JSON block from LLM response to process
+            response_text = response_text.replace("```json", "").replace("```", "").strip()
+            data = json.loads(response_text)
 
-        # 2. Read the Security Vulnerabilities section
-        vulnerabilities = data['Vulnerabilities']
-        
-        #Only process files where vulns have been identified
-        if len(vulnerabilities) > 0:
-            output_data[file_path].extend(vulnerabilities)
+            # 2. Read the Security Vulnerabilities section
+            vulnerabilities = data['Vulnerabilities']
+            
+            #Only process files where vulns have been identified
+            if len(vulnerabilities) > 0:
+                output_data[file_path].extend(vulnerabilities)
+        else:
+            print("[-] response_text is None")
 
 def process_response_code(response_text,file_path,output_dir):
     with output_data_lock:
-        #Removing JSON block from LLM response to process
-        response_text = response_text.replace("```json", "").replace("```", "").strip()
-        data = json.loads(response_text)
+        if response_text is not None:
+            #Removing JSON block from LLM response to process
+            response_text = response_text.replace("```json", "").replace("```", "").strip()
+            data = json.loads(response_text)
 
-        #Read the code between Java code block
-        java_code = data['Code']
-        create_unobfuscated_code_files(output_dir,file_path,java_code)
+            #Read the code between Java code block
+            java_code = data['Code']
+            create_unobfuscated_code_files(output_dir,file_path,java_code)
+        else:
+            print("[-] response_text is None")
 
 def create_unobfuscated_code_files(code_output_directory, file_path, java_code):
     
@@ -152,8 +145,8 @@ async def process_code_files(semaphore, file_path, llm_client):
             content = read_file_content(file_path)
 
             # Sending instructions to find vuln
-            response = await send_code_to_llm(prompt_vuln, content, llm_client)
-            process_response_vuln(response, file_path)
+            ## response = await send_code_to_llm(prompt_vuln, content, llm_client)
+            ## process_response_vuln(response, file_path)
             
             # Sending instructions to deobfuscate code
             if (_SAVE_CODE.value):
@@ -205,13 +198,13 @@ async def main(argv: Sequence[str]) -> None:
         genai.configure(api_key=api_key)
         llm_client = genai.GenerativeModel(_LLM_MODEL.value)
     elif "openai" in _LLM_PROVIDER.value:
-        llm_client = openai.OpenAI(api_key=api_key)
+        llm_client = openai.OpenAI(api_key=api_key, timeout=20)
     elif "anthropic" in _LLM_PROVIDER.value:
         llm_client = anthropic.Anthropic(api_key=api_key)
     elif "ollama" in _LLM_PROVIDER.value:
         llm_client = None #We don't need to do anything
     elif "vllm" in _LLM_PROVIDER.value:
-        llm_client = openai.OpenAI(api_key=api_key, base_url=api_base_url)
+        llm_client = openai.OpenAI(api_key=api_key, base_url=api_base_url, timeout=20)
     else:
         raise ValueError(f"Unsupported LLM provider: {_LLM_PROVIDER.value}")
 
