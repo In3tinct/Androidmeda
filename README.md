@@ -8,7 +8,7 @@ Androidmeda supports both LLM APIs (like OpenAI, Gemini, Anthropic) and local LL
 
 Apparently Androidmeda can be used to deobfuscate android malware as well. Some great articles covering it.
 
-1) [Deobfuscating Android malware](https://github.com/In3tinct/Deobfuscate-android-app.git)
+1) [Deobfuscating Android malware](https://www.mobile-hacker.com/2025/07/22/deobfuscating-android-apps-with-androidmeda-a-smarter-way-to-read-obfuscated-code/)
 
 2) [Benchmarking of Android deobfuscation with Multiple LLM](https://fuzzinglabs.com/llm-assisted-android-deobfuscation-benchmark/)
 
