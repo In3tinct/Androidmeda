@@ -82,7 +82,7 @@ def process_response_vuln(response_text,file_path):
         data = json.loads(response_text)
 
         # 2. Read the Security Vulnerabilities section
-        vulnerabilities = data['Vulnerabilities']
+        vulnerabilities = data.get('Vulnerabilities', [])
         
         #Only process files where vulns have been identified
         if len(vulnerabilities) > 0:
@@ -95,7 +95,7 @@ def process_response_code(response_text,file_path,output_dir):
         data = json.loads(response_text)
 
         #Read the code between Java code block
-        java_code = data['Code']
+        java_code = data.get('Code', '')
         create_unobfuscated_code_files(output_dir,file_path,java_code)
 
 def create_unobfuscated_code_files(code_output_directory, file_path, java_code):
