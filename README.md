@@ -84,13 +84,19 @@ Follow steps here to download and run the model locally [github.com/ollama/ollam
   * **33B models:** Minimum 32GB RAM, 64GB recommended.
   Ensure your system (or WSL instance) has sufficient free memory.
 
-To Run script with Ollama, 
+To Run script with Ollama,
 
 `python3 androidmeda.py --llm_provider ollama --llm_model llama3.2 -output_dir /tmp/ver/ -source_dir "input_dir1/ input_dir2/"`
 
+**c. Using vLLM models**
+
+To Run script with vLLM,
+
+`python3 androidmeda.py --llm_provider vllm --llm_model your-model-name -output_dir /tmp/ver/ -source_dir "input_dir1/ input_dir2/"`
+
 **Parameters -** 
 
-*-llm_provider* is the LLM provider of the model. e.g. google, anthropic, openaI, ollama 
+*-llm_provider* is the LLM provider of the model. e.g. google, anthropic, openai, ollama, vllm
 
 *-llm_model* is the LLM model to use, Gemini, Claude, ChatGPT are supported. You can get the model variants from here. 
 [google](https://ai.google.dev/gemini-api/docs/models/gemini#model-variations)

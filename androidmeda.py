@@ -15,7 +15,7 @@ import openai
 import anthropic
 
 _LLM_PROVIDER = flags.DEFINE_string(
-    'llm_provider', None, 'LLM Provider to use e.g. google, openai, anthropic, ollama')
+    'llm_provider', None, 'LLM Provider to use e.g. google, openai, anthropic, ollama, vllm')
 _LLM_MODEL = flags.DEFINE_string(
     'llm_model', None, 'LLM Model to use e.g gemini-2.0-flash, gpt-4.1')
 _OUTPUT_DIR = flags.DEFINE_string(
@@ -43,7 +43,7 @@ async def send_code_to_llm(system_instructions, files_data, llm_client=None):
             elif "ollama" in _LLM_PROVIDER.value:
                 response = ollama.generate(model=_LLM_MODEL.value, format="json", prompt=complete_prompt)
                 return response.response
-            elif "openai" in _LLM_PROVIDER.value:
+            elif "openai" in _LLM_PROVIDER.value or "vllm" in _LLM_PROVIDER.value:
                 chat_completion = llm_client.chat.completions.create(
                     messages=[
                         {"role": "system", "content": system_instructions},
@@ -176,14 +176,19 @@ async def main(argv: Sequence[str]) -> None:
     
     llm_client = None
     api_key = os.environ.get('API_KEY')
-    
+    api_base_url = os.environ.get('API_BASE_URL')
+
     if _LLM_PROVIDER.value is None:
         raise app.UsageError(
-                f'Usage: Model provider is required e.g google, anthropic, openai, ollama'
+                f'Usage: Model provider is required e.g google, anthropic, openai, ollama, vllm'
             )
-    elif "ollama" not in _LLM_PROVIDER.value and api_key is None: # Ollama does not require an API key
+    elif all(x not in _LLM_PROVIDER.value for x in ("ollama", "vllm")) and api_key is None: # Ollama and vLLM do not require an API key
         raise app.UsageError(
                 f'Usage: {_LLM_PROVIDER.value} model requires an API key. Please set the API_KEY environment variable.'
+            )
+    elif "vllm" in _LLM_PROVIDER.value and api_base_url is None:
+        raise app.UsageError(
+                f'Usage: {_LLM_PROVIDER.value} model requires an API BASE URL. Please set the API_BASE_URL environment variable.'
             )
     elif _LLM_MODEL.value is None:
         raise app.UsageError(
@@ -199,6 +204,8 @@ async def main(argv: Sequence[str]) -> None:
         llm_client = anthropic.Anthropic(api_key=api_key)
     elif "ollama" in _LLM_PROVIDER.value:
         llm_client = None #We don't need to do anything
+    elif "vllm" in _LLM_PROVIDER.value:
+        llm_client = openai.OpenAI(api_key=api_key, base_url=api_base_url)
     else:
         raise ValueError(f"Unsupported LLM provider: {_LLM_PROVIDER.value}")
 
