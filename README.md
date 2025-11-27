@@ -86,7 +86,7 @@ Follow steps here to download and run the model locally [github.com/ollama/ollam
 
 To Run script with Ollama, 
 
-`python3 androidmeda.py --llm_provider ollama --llm_model llama3.2 -output_dir /tmp/ver/ -source_dir "input_dir1/ input_dir2/"`
+`python3 androidmeda.py --llm_model llama3.2 -output_dir /tmp/ver/ -source_dir "input_dir1/ input_dir2/"`
 
 **Parameters -** 
 
