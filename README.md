@@ -15,7 +15,7 @@ Apparently Androidmeda can be used to deobfuscate android malware as well. Some 
 2) [Benchmarking of Android deobfuscation with Multiple LLM](https://fuzzinglabs.com/llm-assisted-android-deobfuscation-benchmark/)
 
 
-## Citation
+## 📜 Citation
 Please cite, If you use this software in your Research papers, articles etc.
 
 ```
@@ -29,54 +29,61 @@ Please cite, If you use this software in your Research papers, articles etc.
 }
 ```
 
-## Features
+## 🚀 Features
 
-* **LLM-Powered Deobfuscation:** Utilizes advanced LLMs to intelligently deobfuscate code elements and add helpful comments. 
-* **Local Model Support:** Seamless integration with local LLMs via Ollama for privacy-focused and cost-effective analysis.
-* **API Model Support:** Compatibility with popular LLM APIs for broader model access.
-* **Vulnerability Reporting:** Generates reports highlighting potential vulnerabilities found during the analysis.
+* **🕵️‍♂️ LLM-Powered Deobfuscation:** Utilizes advanced LLMs to intelligently deobfuscate code elements and add helpful comments. 
+* **☁️ Local Model Support/Local Privacy:** Support for local inference using **Ollama** (Llama 3, Mistral) for privacy-focused analysis and cost-effective analysis.
+* **📝 Cloud/API Model Support:** Compatible with major APIs like **OpenAI (GPT)**, **Google (Gemini)**, and **Anthropic (Claude).
+* **🚨 Vulnerability Scanner:** Generates a JSON report highlighting potential security risks.
 
-## Description
+## 📊 Output
 
-Input - Takes decompiled code directory as an input.
+1) * **📄 Vulnerability Report:** A JSON file with name "vuln_report" summarizing identified vulnerabilities.
+2) * **📂 Deobfuscated Code:** If `--save_code true` was used, Deobfuscates each file for easier readability and save it in package directory structure for manual reviews. Additionally, labels any security issues seen in the generated code with #SECURITY-ISSUE.
 
-Output -
-
-1) * **Vulnerability Report:** A JSON file with name "vuln_report" summarizing identified vulnerabilities.
-2) * **Deobfuscated Code:** If `--save_code true` was used, Deobfuscates each file for easier readability and save it in package directory structure for manual reviews. Additionally, labels any security issues seen in the generated code with #SECURITY-ISSUE.
-
-## Installation
+## 🛠️ Installation
 
 ### 1. Clone the repo
-
-git clone [https://github.com/In3tinct/Deobfuscate-android-app.git](https://github.com/In3tinct/Deobfuscate-android-app.git)
+```bash
+git clone https://github.com/In3tinct/Deobfuscate-android-app.git
+```
 
 ### 2. Install dependencies 
-
+```bash
 pip3 install -r requirements.txt
-
+```
 ### 3. Decompile APK
 
 Get the APK of the intended app. And You can use jadx [https://github.com/skylot/jadx](https://github.com/skylot/jadx) to decompile.
 It will create a "resources" and "sources" directory. "Sources" directory is where the decompiled .java files sit.
-
-`jadx androidapp.apk`
+```bash
+jadx androidapp.apk
+```
 
 ### 4. Run the script 
 
-**a. Using Google/Anthropic/OpenAI LLM Models.**
+**Option A. Using Google/Anthropic/OpenAI LLM Models.**
 
-`EXPORT API_KEY= "Your API Key"`
+```bash
+EXPORT API_KEY= "Your API Key"
+```
 
 You can get the API key for Google [gemini](https://ai.google.dev/), OpenAI [chatgpt](https://platform.openai.com/settings/organization/api-keys), Anthropic [claude](https://console.anthropic.com/settings/keys)
 
 To Run script with Public LLM APIs, 
 
-Gemini - `python3 androidmeda.py --llm_provider google --llm_model gemini-1.5-flash -output_dir /tmp/ver/ -source_dir "input_dir1/ input_dir2/"`
+Gemini - 
 
-ChatGPT - `python3 androidmeda.py --llm_provider openai --llm_model gpt-4.1 -output_dir /tmp/ver/ -source_dir "input_dir1/ input_dir2/"`
+```bash
+python3 androidmeda.py --llm_provider google --llm_model gemini-1.5-flash -output_dir /tmp/ver/ -source_dir "input_dir1/ input_dir2/"
+```
+ChatGPT -
 
-**b. Using Ollama open source models to run locally.**
+```bash
+python3 androidmeda.py --llm_provider openai --llm_model gpt-4.1 -output_dir /tmp/ver/ -source_dir "input_dir1/ input_dir2/"
+```
+
+**Option B. Using Ollama open source models to run locally.**
 
 Follow steps here to download and run the model locally [github.com/ollama/ollama](https://github.com/ollama/ollama) 
 
@@ -87,10 +94,11 @@ Follow steps here to download and run the model locally [github.com/ollama/ollam
   Ensure your system (or WSL instance) has sufficient free memory.
 
 To Run script with Ollama, 
+```bash
+python3 androidmeda.py --llm_provider ollama --llm_model llama3.2 -output_dir /tmp/ver/ -source_dir "input_dir1/ input_dir2/"
+```
 
-`python3 androidmeda.py --llm_provider ollama --llm_model llama3.2 -output_dir /tmp/ver/ -source_dir "input_dir1/ input_dir2/"`
-
-**Parameters -** 
+**⚙️ Parameters -** 
 
 *-llm_provider* is the LLM provider of the model. e.g. google, anthropic, openaI, ollama 
 
@@ -107,7 +115,7 @@ To Run script with Ollama,
 
 **Important - Don't send the entire package at once which would contain libraries etc. Otherwise It may take forever to scan. Send the specific directories as input which contains app specific code. For example - if package directory looks like com/google/android/yourapp, send com/google/android/yourapp/receivers/**
 
-## Demo
+## 🎬 Demo
 
 Decompiled code (Obfuscated)
 
@@ -121,7 +129,7 @@ Security Issues identified by LLM
 
 ![Screenshot 2024-12-06 at 10 20 46 AM](https://github.com/user-attachments/assets/bba67dd9-69e8-4323-b696-203a232a33cd)
 
-## Contributing
+## 🤝 Contributing
 
 See [`CONTRIBUTING.md`](docs/CONTRIBUTING.md) for details.
 
@@ -132,7 +140,7 @@ We welcome contributions to Androidmeda! If you have suggestions for improvement
 3.  Make your changes.
 4.  Commit your changes (`git commit -m 'Add new feature'`).
 5.  Push to the branch (`git push origin feature/your-feature-name`).
-6.  Open a Pull Request.
+6.  Open a Pull Request. 🔄
 
 ## License
 
