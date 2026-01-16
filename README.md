@@ -2,7 +2,7 @@
 
 Androidmeda is an AI tool designed to deobfuscate Android application code and find vulnerabilities by leveraging the power of Large Language Models (LLMs). It analyzes decompiled Android source code to identify obfuscated patterns, suggest more readable names for variables, methods, and classes, and ultimately provide a clearer understanding of an application's logic. 
 
-![Androidmeda](https://github.com/In3tinct/Androidmeda/blob/main/Androidmeda.png?raw=true)
+<img src="https://github.com/In3tinct/Androidmeda/blob/main/Androidmeda.png?raw=true" alt="Androidmeda" width="75%">
 
 Android apps generally use Proguard for obfuscating the app and reversing app can be hard with meaning less variable and function names. LLMs seems to do a good job in understanding the context of the code and renaming variables, functions, adding comments etc. (to certain extent but embrace the unpredictibility of it too).
 
