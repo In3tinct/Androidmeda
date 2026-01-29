@@ -142,11 +142,11 @@ We welcome contributions to Androidmeda! If you have suggestions for improvement
 5.  Push to the branch (`git push origin feature/your-feature-name`).
 6.  Open a Pull Request. 🔄
 
-## License
+## 📜 License
 
 Apache 2.0; see [`LICENSE`](LICENSE) for details.
 
-## Disclaimer
+## ⚠️ Disclaimer
 
 This project is not an official Google project. It is not supported by
 Google and Google specifically disclaims all warranties as to its quality,
